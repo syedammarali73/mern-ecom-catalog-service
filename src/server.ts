@@ -1,16 +1,23 @@
 import app from './app.js';
-import { Config } from './config/index.js';
+import config from 'config';
 import logger from './config/logger.js';
+import { initDb } from './config/db.js';
 
-const startServer = () => {
-    const PORT = Config.PORT;
+const startServer = async () => {
+    const PORT: number = config.get('server.port') || 5502;
     try {
+        await initDb();
+        logger.info('Database connected successfully.');
         app.listen(PORT, () => {
             logger.info('Server listening on port', { port: PORT });
         });
     } catch (err) {
-        console.error(err);
-        process.exit(1);
+        if (err instanceof Error) {
+            logger.error(err.message);
+            logger.on('finish', () => {
+                process.exit(1);
+            });
+        }
     }
 };
 
