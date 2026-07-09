@@ -17,3 +17,5 @@ export interface Category {
     priceConfiguration: PriceConfiguration;
     attributes: Attributes[];
 }
+
+export type UpdateCategory = Partial<Category>;

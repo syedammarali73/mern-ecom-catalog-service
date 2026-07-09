@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import createHttpError from 'http-errors';
-import type { Category } from './category-types.js';
+import type { Category, PriceConfiguration } from './category-types.js';
 import type { CategoryService } from './category-service.js';
 import type { Logger } from 'winston';
 
@@ -11,6 +11,7 @@ export class CategoryController {
         private readonly logger: Logger,
     ) {
         this.create = this.create.bind(this);
+        this.update = this.update.bind(this);
     }
     async create(req: Request, res: Response, next: NextFunction) {
         const result = validationResult(req);
@@ -31,5 +32,49 @@ export class CategoryController {
         });
 
         res.status(201).json({ id: category._id });
+    }
+
+    async update(req: Request, res: Response, next: NextFunction) {
+        const result = validationResult(req);
+
+        if (!result.isEmpty()) {
+            return next(createHttpError(400, result.array()[0]?.msg));
+        }
+
+        const categoryId = req.params.id;
+        const updateData = req.body as Partial<Category>;
+
+        const existingCategory = await this.categoryService.getOne(
+            categoryId as string,
+        );
+
+        if (!existingCategory) {
+            return next(createHttpError(404, 'Category not found'));
+        }
+
+        if (updateData.priceConfiguration) {
+            const existingConfig =
+                existingCategory.priceConfiguration instanceof Map
+                    ? Object.fromEntries(existingCategory.priceConfiguration)
+                    : existingCategory.priceConfiguration;
+
+            const mergedConfig: PriceConfiguration = {
+                ...existingConfig,
+                ...updateData.priceConfiguration,
+            };
+
+            updateData.priceConfiguration = mergedConfig;
+        }
+
+        const updateCategory = await this.categoryService.update(
+            categoryId as string,
+            updateData,
+        );
+
+        this.logger.info(`Updated category`, { id: categoryId });
+
+        res.json({
+            id: updateCategory?._id,
+        });
     }
 }
