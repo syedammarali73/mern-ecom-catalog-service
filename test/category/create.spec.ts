@@ -2,6 +2,7 @@ import request from 'supertest';
 import app from '../../src/app.js';
 import { initDb } from '../../src/config/db.js';
 import mongoose from 'mongoose';
+import createJWKSMock from 'mock-jwks';
 
 const categoryData = {
     name: 'Pizza',
@@ -32,14 +33,27 @@ const categoryData = {
 };
 
 describe('POST /categories', () => {
+    let jwks: ReturnType<typeof createJWKSMock>;
+    let adminToken: string; // accessToken
+
     beforeAll(async () => {
+        jwks = createJWKSMock('http://localhost:5501');
+        jwks.start();
+
+        adminToken = jwks.token({
+            sub: '1',
+            role: 'admin',
+        });
         await initDb();
-    });
+    }, 25000);
 
     beforeEach(async () => {
         await mongoose.connection.dropDatabase();
     });
 
+    afterEach(() => {
+        jwks.stop();
+    });
     afterAll(async () => {
         await mongoose.connection.close();
     });
@@ -50,6 +64,7 @@ describe('POST /categories', () => {
             // Act
             const response = await request(app)
                 .post('/categories')
+                .set('Cookie', [`accessToken=${adminToken}`])
                 .send(categoryData);
 
             // Assert
@@ -61,6 +76,7 @@ describe('POST /categories', () => {
             // Act
             const response = await request(app)
                 .post('/categories')
+                .set('Cookie', [`accessToken=${adminToken}`])
                 .send(categoryData);
             // Assert
             expect(
@@ -72,6 +88,7 @@ describe('POST /categories', () => {
             // Act
             const response = await request(app)
                 .post('/categories')
+                .set('Cookie', [`accessToken=${adminToken}`])
                 .send(categoryData);
             // Assert
             expect(response.body).toHaveProperty('id');
@@ -82,10 +99,22 @@ describe('POST /categories', () => {
             categoryData.priceConfiguration.Size.priceType = 'bases';
             const response = await request(app)
                 .post('/categories')
+                .set('Cookie', [`accessToken=${adminToken}`])
                 .send(categoryData);
 
             // Assert
             expect(response.statusCode).toBe(400);
+        });
+    });
+
+    describe('When unauthenticated', () => {
+        it('should return 401 if user is not authenticated', async () => {
+            const response = await request(app)
+                .post('/categories')
+                .set('Cookie', [`accessToken=${''}`])
+                .send(categoryData);
+
+            expect(response.statusCode).toBe(401);
         });
     });
 });

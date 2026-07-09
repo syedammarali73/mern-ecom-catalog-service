@@ -6,6 +6,7 @@ const presetConfig = createDefaultEsmPreset();
 const config = {
     ...presetConfig,
     testEnvironment: 'node',
+    verbose: true,
     extensionsToTreatAsEsm: ['.ts'],
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
