@@ -3,6 +3,7 @@ import app from '../../src/app.js';
 import { initDb } from '../../src/config/db.js';
 import mongoose from 'mongoose';
 import createJWKSMock from 'mock-jwks';
+import { Roles } from '../../src/common/constants/index.js';
 
 const categoryData = {
     name: 'Pizza',
@@ -42,8 +43,9 @@ describe('POST /categories', () => {
 
         adminToken = jwks.token({
             sub: '1',
-            role: 'admin',
+            role: Roles.ADMIN,
         });
+
         await initDb();
     }, 25000);
 
@@ -115,6 +117,22 @@ describe('POST /categories', () => {
                 .send(categoryData);
 
             expect(response.statusCode).toBe(401);
+        });
+    });
+
+    describe('When unauthorized', () => {
+        it('should return 403 if user is not admin', async () => {
+            const customerToken = jwks.token({
+                sub: '1',
+                role: Roles.CUSTOMER,
+            });
+
+            const response = await request(app)
+                .post('/categories')
+                .set('Cookie', [`accessToken=${customerToken}`])
+                .send(categoryData);
+
+            expect(response.statusCode).toBe(403);
         });
     });
 });
