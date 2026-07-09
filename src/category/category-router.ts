@@ -7,6 +7,7 @@ import { asyncWrapper } from '../common/utils/wrapper.js';
 import authenticate from '../common/middlewares/authenticate.js';
 import { canAccess } from '../common/middlewares/canAccess.js';
 import { Roles } from '../common/constants/index.js';
+import categoryUpdateValidator from './category-update-validator.js';
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.patch(
     '/:id',
     authenticate,
     canAccess([Roles.ADMIN]),
-    categoryValidator,
+    categoryUpdateValidator,
     asyncWrapper(categoryController.update),
 );
 
