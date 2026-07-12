@@ -12,6 +12,7 @@ export class CategoryController {
     ) {
         this.create = this.create.bind(this);
         this.update = this.update.bind(this);
+        this.getAll = this.getAll.bind(this);
     }
     async create(req: Request, res: Response, next: NextFunction) {
         const result = validationResult(req);
@@ -76,5 +77,11 @@ export class CategoryController {
         res.json({
             id: updateCategory?._id,
         });
+    }
+
+    async getAll(req: Request, res: Response) {
+        const categories = await this.categoryService.getAll();
+        this.logger.info(`Getting categories list`);
+        res.json(categories);
     }
 }

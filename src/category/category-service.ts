@@ -19,4 +19,8 @@ export class CategoryService {
             returnDocument: 'after',
         });
     }
+
+    async getAll() {
+        return await CategoryModel.find();
+    }
 }
