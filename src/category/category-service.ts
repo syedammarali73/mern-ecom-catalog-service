@@ -23,4 +23,8 @@ export class CategoryService {
     async getAll() {
         return await CategoryModel.find();
     }
+
+    async delete(categoryId: string) {
+        return await CategoryModel.findByIdAndDelete(categoryId);
+    }
 }

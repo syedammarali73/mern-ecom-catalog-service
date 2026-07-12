@@ -14,6 +14,7 @@ export class CategoryController {
         this.update = this.update.bind(this);
         this.getAll = this.getAll.bind(this);
         this.getOne = this.getOne.bind(this);
+        this.delete = this.delete.bind(this);
     }
     async create(req: Request, res: Response, next: NextFunction) {
         const result = validationResult(req);
@@ -94,5 +95,15 @@ export class CategoryController {
 
         this.logger.info(`Getting categories list`);
         res.json(category);
+    }
+
+    async delete(req: Request, res: Response) {
+        const { categoryId } = req.params;
+        const category = await this.categoryService.delete(
+            categoryId as string,
+        );
+
+        this.logger.info(`delete a category.`, { _id: category?._id });
+        res.json({ _id: category?._id });
     }
 }

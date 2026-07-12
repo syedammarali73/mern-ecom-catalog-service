@@ -34,4 +34,6 @@ router.get('/', asyncWrapper(categoryController.getAll));
 
 router.get('/:categoryId', asyncWrapper(categoryController.getOne));
 
+router.delete('/:categoryId', asyncWrapper(categoryController.delete));
+
 export default router;
