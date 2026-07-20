@@ -1,4 +1,5 @@
 import {
+    DeleteObjectCommand,
     PutObjectCommand,
     S3Client,
 } from '@aws-sdk/client-s3';
@@ -29,7 +30,12 @@ export class S3Storage implements FileStorage {
     }
 
     async delete(filename: string): Promise<void> {
-        throw new Error('Method not implemented.');
+        const objectParams = {
+            Bucket: config.get('s3.bucket') as string,
+            Key: filename,
+        };
+
+        await this.client.send(new DeleteObjectCommand(objectParams));
     }
 
     getObjectUri(): string {

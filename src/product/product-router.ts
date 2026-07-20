@@ -14,7 +14,7 @@ import fileUpload from 'express-fileupload';
 import { S3Storage } from '../common/services/S3Storage.js';
 import createHttpError from 'http-errors';
 import logger from '../config/logger.js';
-
+import updateProductValidator from './update-product-validator.js';
 
 const router = express.Router();
 
@@ -42,5 +42,22 @@ router.post(
     asyncWrapper(productController.create),
 );
 
+router.put(
+    '/:productId',
+    authenticate,
+    canAccess([Roles.ADMIN, Roles.MANAGER]),
+
+    fileUpload({
+        limits: { fileSize: 500 * 1024 },
+        abortOnLimit: true,
+        limitHandler: (req: Request, res: Response, next: NextFunction) => {
+            const error = createHttpError(400, 'File size exceeds the limit.');
+
+            next(error);
+        },
+    }),
+    updateProductValidator,
+    asyncWrapper(productController.update),
+);
 
 export default router;
