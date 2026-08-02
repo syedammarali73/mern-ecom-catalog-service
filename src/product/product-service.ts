@@ -14,7 +14,12 @@ export class ProductService {
         return await productModel.findOneAndUpdate(
             { _id: productId },
             { $set: product },
-            { new: true },
+            { returnDocument: 'after' },
         );
     }
+
+    async getProduct(productId: string): Promise<Product | null> {
+        return await productModel.findOne({ _id: productId });
+    }
+
 }
