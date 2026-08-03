@@ -1,4 +1,5 @@
-import type { Filter } from '../common/types/index.js';
+import type { Filter, PaginateQuery } from '../common/types/index.js';
+import { paginationLabels } from '../config/pagination.js';
 import productModel, { type Product } from './product-model.js';
 
 export class ProductService {
@@ -23,7 +24,7 @@ export class ProductService {
         return await productModel.findOne({ _id: productId });
     }
 
-    async getProducts(q: string, filters: Filter){
+    async getProducts(q: string, filters: Filter, paginateQuery: PaginateQuery){
         const searchQueryRegex = new RegExp(q, "i");
 
         const matchQuery = {
@@ -58,9 +59,8 @@ export class ProductService {
             }
         ])
 
-        const result = await aggregate.exec();
 
-        return result as Product[];
+        return await productModel.aggregatePaginate(aggregate, {...paginateQuery, customLabels: paginationLabels});
     }
 
 }

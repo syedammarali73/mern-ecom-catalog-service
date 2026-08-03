@@ -165,7 +165,11 @@ export class ProductController {
 
         const products = await this.productService.getProducts(
             q as string,
-            filters
+            filters,
+            {
+                page: req.query.page ? parseInt(req.query.page as string) : 1,
+                limit: req.query.limit ? parseInt(req.query.limit as string) : 10
+            }
         );
 
         this.logger.info("products are fetched:", products)
