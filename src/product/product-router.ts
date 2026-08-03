@@ -42,6 +42,8 @@ router.post(
     asyncWrapper(productController.create),
 );
 
+router.get('/', asyncWrapper(productController.list))
+
 router.put(
     '/:productId',
     authenticate,

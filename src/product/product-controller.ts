@@ -8,8 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 import type { UploadedFile } from 'express-fileupload';
 import type { Product } from './product-model.js';
 import type { Logger } from 'winston';
-import type { AuthRequest } from '../common/types/index.js';
+import type { AuthRequest, Filter } from '../common/types/index.js';
 import { Roles } from '../common/constants/index.js';
+import mongoose from 'mongoose';
 
 export class ProductController {
     constructor(
@@ -144,4 +145,31 @@ export class ProductController {
 
         res.json({ id: productId });
     };
+
+    list = async (req: Request, res: Response, next: NextFunction) => {
+        const {q, tenantId, categoryId, isPublish } = req.query;
+
+        const filters: Filter = {};
+
+        if(isPublish === "true"){
+            filters.isPublish = true
+        }
+
+        if(tenantId) {
+            filters.tenantId = tenantId as string;
+        }
+
+        if(categoryId && mongoose.Types.ObjectId.isValid(categoryId as string)){
+            filters.categoryId = new mongoose.Types.ObjectId(categoryId as string)
+        }
+
+        const products = await this.productService.getProducts(
+            q as string,
+            filters
+        );
+
+        this.logger.info("products are fetched:", products)
+
+        res.json(products);
+    }
 }
