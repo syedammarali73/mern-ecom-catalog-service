@@ -1,4 +1,4 @@
-import mongoose, { type InferSchemaType } from 'mongoose';
+import mongoose, { type AggregatePaginateModel, type InferSchemaType } from 'mongoose';
 import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const attributeValueSchema = new mongoose.Schema({
@@ -66,6 +66,6 @@ const productSchema = new mongoose.Schema(
 
 productSchema.plugin(aggregatePaginate);
 
-export default mongoose.model('Product', productSchema);
+export default mongoose.model<Product, AggregatePaginateModel<Product>>('Product', productSchema);
 
 export type Product = InferSchemaType<typeof productSchema>;
