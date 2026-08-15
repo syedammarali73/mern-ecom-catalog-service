@@ -24,43 +24,51 @@ export class ProductService {
         return await productModel.findOne({ _id: productId });
     }
 
-    async getProducts(q: string, filters: Filter, paginateQuery: PaginateQuery){
-        const searchQueryRegex = new RegExp(q, "i");
+    async getProducts(
+        q: string,
+        filters: Filter,
+        paginateQuery: PaginateQuery,
+    ) {
+        const searchQueryRegex = new RegExp(q, 'i');
 
         const matchQuery = {
             ...filters,
-            name: searchQueryRegex
-        }
+            name: searchQueryRegex,
+        };
 
         const aggregate = productModel.aggregate([
             {
-                $match: matchQuery
+                $match: matchQuery,
             },
             {
                 $lookup: {
-                    from: "categories",
-                    localField: "categoryId",
-                    foreignField: "_id",
-                    as: "category",
+                    from: 'categories',
+                    localField: 'categoryId',
+                    foreignField: '_id',
+                    as: 'category',
                     pipeline: [
                         {
                             $project: {
                                 _id: 1,
                                 name: 1,
                                 attributes: 1,
-                                priceConfiguration: 1
-                            }
-                        }
-                    ]
-                }
+                                priceConfiguration: 1,
+                            },
+                        },
+                    ],
+                },
             },
             {
-                $unwind: "$category"
-            }
-        ])
+                $unwind: {
+                    path: '$category',
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+        ]);
 
-
-        return await productModel.aggregatePaginate(aggregate, {...paginateQuery, customLabels: paginationLabels});
+        return await productModel.aggregatePaginate(aggregate, {
+            ...paginateQuery,
+            customLabels: paginationLabels,
+        });
     }
-
 }
