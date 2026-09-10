@@ -2,6 +2,7 @@ import express, { type Request, type Response } from 'express';
 import { globalErrorHandler } from './common/middlewares/globalErrorHandler.js';
 import categoryRouter from './category/category-router.js';
 import productRouter from './product/product-router.js';
+import toppingRouter from './topping/topping-router.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import config from 'config';
@@ -24,6 +25,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/categories', categoryRouter);
 app.use('/products', productRouter);
+app.use('/toppings', toppingRouter);
 
 app.use(globalErrorHandler);
 
