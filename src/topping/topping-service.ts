@@ -7,6 +7,7 @@ export class ToppingService {
     }
 
     async getAll(tenantId: string) {
-        return [{ name: 'topping' }];
+        const filter = tenantId ? { tenantId } : {};
+        return await toppingModel.find(filter);
     }
 }

@@ -51,6 +51,21 @@ export class ToppingController {
     };
 
     list = async (req: Request, res: Response, next: NextFunction) => {
-        res.json({ message: 'working' });
+        const toppings = await this.toppingService.getAll(
+            req.query.tenantId as string,
+        );
+
+        const readyToppings = toppings.map((topping) => {
+            return [
+                {
+                    name: topping.name,
+                    price: topping.price,
+                    tenantId: topping.tenantId,
+                    image: this.storage.getObjectUri(topping.image),
+                },
+            ];
+        });
+
+        res.json({ data: readyToppings, total: readyToppings.length });
     };
 }
