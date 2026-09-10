@@ -9,7 +9,10 @@ import { ToppingService } from './topping-service.js';
 import logger from '../config/logger.js';
 import fileUpload from 'express-fileupload';
 import createHttpError from 'http-errors';
-import createToppingValidator from './topping-validation.js';
+import {
+    createToppingValidator,
+    listToppingValidator,
+} from './topping-validation.js';
 
 const router = express.Router();
 
@@ -36,6 +39,7 @@ router.post(
     createToppingValidator,
     asyncWrapper(toppingController.create),
 );
-router.get('/', asyncWrapper(toppingController.list));
+
+router.get('/', listToppingValidator, asyncWrapper(toppingController.list));
 
 export default router;

@@ -1,6 +1,6 @@
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 
-export default [
+export const createToppingValidator = [
     body('name')
         .exists()
         .withMessage('Topping name is required')
@@ -22,4 +22,16 @@ export default [
         .withMessage('Tenant Id is required')
         .isString()
         .withMessage('Tenant Id should be a string'),
+];
+
+export const listToppingValidator = [
+    query('page')
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage('Page must be a positive integer'),
+
+    query('limit')
+        .optional()
+        .isInt({ min: 1, max: 100 })
+        .withMessage('Limit must be between 1 and 100'),
 ];

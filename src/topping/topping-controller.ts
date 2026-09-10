@@ -51,21 +51,30 @@ export class ToppingController {
     };
 
     list = async (req: Request, res: Response, next: NextFunction) => {
-        const toppings = await this.toppingService.getAll(
-            req.query.tenantId as string,
+        const result = validationResult(req);
+
+        if (!result.isEmpty()) {
+            return next(createHttpError(400, result.array()[0]?.msg as string));
+        }
+
+        const { tenantId, page = 1, limit = 10 } = req.query;
+
+        const currentPage = Number(page);
+        const pageSize = Number(limit);
+
+        const { data, total } = await this.toppingService.getAll(
+            tenantId as string,
+            currentPage,
+            pageSize,
         );
 
-        const readyToppings = toppings.map((topping) => {
-            return [
-                {
-                    name: topping.name,
-                    price: topping.price,
-                    tenantId: topping.tenantId,
-                    image: this.storage.getObjectUri(topping.image),
-                },
-            ];
+        const readyToppings = data.map((topping) => {
+            return {
+                ...topping.toObject(),
+                image: this.storage.getObjectUri(topping.image),
+            };
         });
 
-        res.json({ data: readyToppings, total: readyToppings.length });
+        res.json({ data: readyToppings, total, pageSize, currentPage });
     };
 }
