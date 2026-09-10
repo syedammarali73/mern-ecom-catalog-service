@@ -7,3 +7,9 @@ export interface Topping {
     tenantId: string;
     image: string;
 }
+
+export interface CreateRequestBody {
+    name: string;
+    price: number;
+    tenantId: string;
+}
